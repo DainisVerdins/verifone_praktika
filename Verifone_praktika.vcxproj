@@ -158,7 +158,7 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\..\Downloads\file.txt" />
+    <Text Include="file.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

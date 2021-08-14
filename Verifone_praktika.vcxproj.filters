@@ -24,6 +24,6 @@
     <None Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\..\Downloads\file.txt" />
+    <Text Include="file.txt" />
   </ItemGroup>
 </Project>
