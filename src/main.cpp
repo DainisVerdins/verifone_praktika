@@ -6,29 +6,40 @@
 #define STR_BUFFER_SIZE 255
 
 
-char* get_names(char* str, char* card_number)
+struct CardInfo{
+	//TODO make then ass arrays of specific size not as pointers
+	 char* name;
+	 char* range_start;
+	 char* range_end;
+};
+
+void parse_name( const char* str, CardInfo &card)
 {
 	const size_t range_size = 16;
 	char range_start[range_size] = {};
 	char range_end[range_size] = {};
 
 	const size_t name_size = 255;
-	char card_name[name_size];//buffer what contains name;
+	char card_name[name_size] = {};//buffer what contains name;
 
+	sscanf_s( str, "%[0-9];%[0-9];%[a-zA-Z];", range_start, range_size, range_end, range_size, card_name, name_size); //parsing data of string
 
+	puts(range_start);
+	puts(range_end);
+	puts(card_name);
+	
+}
 
-	//get separating string into parts/
-	char* token;
-	const char* delim = ";";
-	char* next_token=NULL;
-	printf("Parsing the input str [%s] \n", str);
-	printf("\n");
-	token = strtok_s(str,  delim, &next_token);
-	puts(token);
-	token = strtok_s(NULL, delim, &next_token);
-	puts(token);
-	token = strtok_s(NULL, delim, &next_token);
-	puts(token);
+char* get_names(const char* str, char* card_number)
+{
+
+	CardInfo card;
+	parse_name(str, card);
+	printf("card info \n");
+	puts(card.range_start);
+	puts(card.range_end);
+	puts(card.name);
+	printf("end of info\n");
 	
 
 
@@ -62,8 +73,7 @@ char* get_name(const char file_name[], char card_number[])
 	else {
 
 		while (fgets(buff, buff_size, pfile) != NULL) {
-			printf("%s", buff);
-
+		
 			pname = get_names(buff, card_number);
 		}
 
@@ -121,3 +131,5 @@ int main()
 
 	return 0;
 }
+
+
