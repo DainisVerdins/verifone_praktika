@@ -4,10 +4,13 @@
 
 
 #define STR_BUFFER_SIZE 255
-//get substring from a src string without
-void get_substring(char* dst, const char* src, size_t pos, size_t length)
+
+//brief: get substring from a src string
+//dst_size: size of dst
+//length - The number of characters to be copied from source.
+void get_substring(char* dst, size_t dst_size, const char* src, size_t pos, size_t length)
 {
-	strncpy_s(dst, STR_BUFFER_SIZE, src+pos, length);	
+	strncpy_s(dst, dst_size, src + pos, length);
 	dst[length] = '\0';
 }
 
@@ -84,7 +87,7 @@ bool is_valid_card_num(const char card_number[])
 	//card number must precisly 16 digits
 	const int chars_in_card = 16;//probably to need add as macros
 
-	if (card_length< chars_in_card || card_length>chars_in_card) 
+	if (card_length< chars_in_card || card_length>chars_in_card)
 	{
 		return false;
 	}
@@ -105,7 +108,7 @@ int main()
 {
 	char file_name[] = "file.txt";
 	char card_number[] = "1234567890123456"; //just random number
-	char account_info[] = "400000000000;499999999999;VISA;"; //25 29
+	char test_account_info[] = "400000000000;499999999999;VISA;"; //25 29
 
 	if (is_valid_card_num(card_number))
 	{
@@ -117,7 +120,7 @@ int main()
 	}
 
 	char buff[STR_BUFFER_SIZE];
-	get_substring(buff, account_info, 26, 29-25);
+	get_substring(buff, STR_BUFFER_SIZE, test_account_info, 26, 29 - 25);
 
 	puts(buff);
 
