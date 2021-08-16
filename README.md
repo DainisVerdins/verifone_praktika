@@ -48,3 +48,14 @@ Ja ir kādas neskaidrības par uzdevuma nostādni, dodiet ziņu un centīšos iz
 Laika limita uzdevuma izpildei nav, galvenais ir kvalitāte!  
 
 <img src="https://imgur.com/VbgdZ7h" alt="Lamp">  
+
+
+- [x] is inputed card number valid
+- [x] read file.txt
+- [ ] parse inputed string from file.txt
+- [ ] found if inputed card number match, if so return name of card string
+- [ ] promt user input DEPOSIT
+- [ ] check if DEPOSIT input is valid
+- [ ] write cards name and DEPOSIT to file
+- [ ] while loop for promt and user interface
+- [ ] error msg's 

@@ -66,13 +66,14 @@ char* get_name(const char file_name[], char card_number[])
 }
 
 //check if card_number have valid specifics 
-bool is_valid(const char card_number[])
+//must contain numbers sequence 
+bool is_valid_card_num(const char card_number[])
 {
 	int card_length = strlen(card_number);
 	int i = 0;
 
 	//card number must precisly 16 digits
-	const int chars_in_card = 16;//probably to need to add as macros
+	const int chars_in_card = 16;//probably to need add as macros
 
 	if (card_length< chars_in_card || card_length>chars_in_card) 
 	{
@@ -96,7 +97,7 @@ int main()
 	char file_name[] = "file.txt";
 	char card_number[] = "1234567890123456"; //just random number
 
-	if (is_valid(card_number))
+	if (is_valid_card_num(card_number))
 	{
 		puts(card_number);
 
