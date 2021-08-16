@@ -5,38 +5,33 @@
 
 #define STR_BUFFER_SIZE 255
 
-//brief: get substring from a src string
-//dst_size: size of dst
-//length - The number of characters to be copied from source.
-void get_substring(char* dst, size_t dst_size, const char* src, size_t pos, size_t length)
-{
-	strncpy_s(dst, dst_size, src + pos, length);
-	dst[length] = '\0';
-}
-
-
-
 
 char* get_names(char* str, char* card_number)
 {
+	const size_t range_size = 16;
+	char range_start[range_size] = {};
+	char range_end[range_size] = {};
 
-	char range_start[16] = {};
-	char range_end[16] = {};
-
-	const size_t buff_size = 255;
-	char buff[buff_size];//buffer what contains name;
+	const size_t name_size = 255;
+	char card_name[name_size];//buffer what contains name;
 
 
-	char* pch;
-	pch = strchr(str, ';'); //TODO: make separator sign as macros
-	while (pch != NULL)
-	{
-		printf("%c ", *pch);
-		printf("found at %lld\n", pch - str + 1);
-		pch = strchr(pch + 1, ';');
-	}
+
+	//get separating string into parts/
+	char* token;
+	const char* delim = ";";
+	char* next_token=NULL;
+	printf("Parsing the input str [%s] \n", str);
 	printf("\n");
-	char dummy[] = "Wow!";
+	token = strtok_s(str,  delim, &next_token);
+	puts(token);
+	token = strtok_s(NULL, delim, &next_token);
+	puts(token);
+	token = strtok_s(NULL, delim, &next_token);
+	puts(token);
+	
+
+
 	return card_number;
 }
 
@@ -51,9 +46,9 @@ char* get_name(const char file_name[], char card_number[])
 {
 
 	FILE* pfile;
-	char* Name;
+	char* pname;
 	const size_t buff_size = 255;
-	Name = NULL;
+	pname = NULL;
 	char buff[255];
 
 
@@ -69,11 +64,11 @@ char* get_name(const char file_name[], char card_number[])
 		while (fgets(buff, buff_size, pfile) != NULL) {
 			printf("%s", buff);
 
-			Name = get_names(buff, card_number);
+			pname = get_names(buff, card_number);
 		}
 
 		fclose(pfile);
-		return Name;
+		return pname;
 	}
 
 }
@@ -119,10 +114,10 @@ int main()
 		printf("bad cards number -> %s\n", card_number);
 	}
 
-	char buff[STR_BUFFER_SIZE];
-	get_substring(buff, STR_BUFFER_SIZE, test_account_info, 26, 29 - 25);
 
-	puts(buff);
+	get_name(file_name, card_number);
+
+
 
 	return 0;
 }
