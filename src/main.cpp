@@ -33,9 +33,7 @@ struct CardInfo {
 
 void get_names(const char* str, const char* card_number)
 {
-	int card_number_length;
-	int range_length; 
-	int check_length;//contnains smallest value from card_number length and cards range length
+	// TODO think about what Range start and range end could be in diferent length;
 	int i;
 	CardInfo card;
 	
@@ -46,15 +44,7 @@ void get_names(const char* str, const char* card_number)
 
 	puts("\n");
 
-	card_number_length= strnlen_s(card_number,255);//TODO fix magick 255 to anywhere
-	printf("card_number_length is %i \n", card_number_length);
-	
-	range_length = card.get_range_length();
-
-	//need to get smallest  str length from range or card number
-	check_length= (card_number_length < range_length) ? card_number_length : range_length;
-
-	for ( i = 0; i < check_length; ++i)
+	for ( i = 0; i < card.get_range_length(); ++i)
 	{
 		if (card.range_start[i]> card_number[i] || card.range_end[i] < card_number[i])
 		{
@@ -62,7 +52,7 @@ void get_names(const char* str, const char* card_number)
 			return;
 		}
 	}
-	printf("match");
+	printf("match\n");
 	puts(card.range_start);
 	puts(card_number);
 	puts(card.range_end);
@@ -141,9 +131,9 @@ bool is_valid_card_num(const char card_number[])
 int main()
 {
 	char file_name[] = "file.txt";
-	char card_number[] = "1234567890123456"; //just random number
-	//char card_number[] = "400000001000"; //just random number
-	char test_account_info[] = "400000000000;499999999999;VISA;"; //25 29
+	//char card_number[] = "1234567890123456"; //just random number
+	char card_number[] =   "6799999900004646"; //just random number
+	//char test_account_info[] = "400000000000;499999999999;VISA;"; //25 29
 
 	if (is_valid_card_num(card_number))
 	{
