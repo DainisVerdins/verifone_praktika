@@ -6,44 +6,41 @@
 #define STR_BUFFER_SIZE 255
 
 
-struct CardInfo{
-	//TODO make then ass arrays of specific size not as pointers
-	 char* name;
-	 char* range_start;
-	 char* range_end;
+struct CardInfo {
+
+	char name[255] = {};
+	char range_start[16] = {};
+	char range_end[16] = {};
+
+	int get_name_length() { return strlen(name); }
+	
+	//get length of range_start
+	int get_range_length() { return strlen(range_start); }
+
+	//return maximal amount of numbers what can contain range
+	int get_range_size() { return 16; }
+	//return maximal amount of numbers what can contain name
+	int get_name_size() { return 255; }
 };
 
-void parse_name( const char* str, CardInfo &card)
-{
-	const size_t range_size = 16;
-	char range_start[range_size] = {};
-	char range_end[range_size] = {};
 
-	const size_t name_size = 255;
-	char card_name[name_size] = {};//buffer what contains name;
 
-	sscanf_s( str, "%[0-9];%[0-9];%[a-zA-Z];", range_start, range_size, range_end, range_size, card_name, name_size); //parsing data of string
-
-	puts(range_start);
-	puts(range_end);
-	puts(card_name);
-	
-}
-
-char* get_names(const char* str, char* card_number)
+void get_names(const char* str, const char* card_number)
 {
 
 	CardInfo card;
-	parse_name(str, card);
-	printf("card info \n");
+	int range_max_length = card.get_range_size();
+	sscanf_s(str, "%[0-9];%[0-9];%[a-zA-Z];",card.range_start, range_max_length,
+											 card.range_end, range_max_length,
+											 card.name, card.get_name_size());
+
 	puts(card.range_start);
 	puts(card.range_end);
 	puts(card.name);
-	printf("end of info\n");
+	puts("\n");
+
+
 	
-
-
-	return card_number;
 }
 
 
@@ -73,8 +70,8 @@ char* get_name(const char file_name[], char card_number[])
 	else {
 
 		while (fgets(buff, buff_size, pfile) != NULL) {
-		
-			pname = get_names(buff, card_number);
+
+			 get_names(buff, card_number);
 		}
 
 		fclose(pfile);
