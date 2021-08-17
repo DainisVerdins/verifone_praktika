@@ -1,7 +1,11 @@
 #include<stdio.h>
 #include <cstring>//pause
 #include <cctype>//isdigit
+/*
+todo list:
+FIX MAGICK CONSTANTS NUMBERS
 
+*/
 
 #define STR_BUFFER_SIZE 255
 
@@ -11,33 +15,61 @@ struct CardInfo {
 	char name[255] = {};
 	char range_start[16] = {};
 	char range_end[16] = {};
+	bool found = false; //FIX
 
-	int get_name_length() { return strlen(name); }
+	int get_name_length() { return strnlen_s(name,255); }
 	
 	//get length of range_start
-	int get_range_length() { return strlen(range_start); }
+	int get_range_length() { return strnlen_s(range_start,16); }
 
 	//return maximal amount of numbers what can contain range
 	int get_range_size() { return 16; }
 	//return maximal amount of numbers what can contain name
 	int get_name_size() { return 255; }
+	
 };
 
 
 
 void get_names(const char* str, const char* card_number)
 {
-
+	int card_number_length;
+	int range_length; 
+	int check_length;//contnains smallest value from card_number length and cards range length
+	int i;
 	CardInfo card;
-	int range_max_length = card.get_range_size();
-	sscanf_s(str, "%[0-9];%[0-9];%[a-zA-Z];",card.range_start, range_max_length,
-											 card.range_end, range_max_length,
+	
+	
+	sscanf_s(str, "%[0-9];%[0-9];%[a-zA-Z];",card.range_start, card.get_range_size(),
+											 card.range_end, card.get_range_size(),
 											 card.name, card.get_name_size());
 
+	puts("\n");
+
+	card_number_length= strnlen_s(card_number,255);//TODO fix magick 255 to anywhere
+	printf("card_number_length is %i \n", card_number_length);
+	
+	range_length = card.get_range_length();
+
+	//need to get smallest  str length from range or card number
+	check_length= (card_number_length < range_length) ? card_number_length : range_length;
+
+	for ( i = 0; i < check_length; ++i)
+	{
+		if (card.range_start[i]> card_number[i] || card.range_end[i] < card_number[i])
+		{
+			printf("no match");
+			return;
+		}
+	}
+	printf("match");
 	puts(card.range_start);
+	puts(card_number);
 	puts(card.range_end);
 	puts(card.name);
-	puts("\n");
+	//proverka na vallidnostsj
+
+
 
 
 	
@@ -110,6 +142,7 @@ int main()
 {
 	char file_name[] = "file.txt";
 	char card_number[] = "1234567890123456"; //just random number
+	//char card_number[] = "400000001000"; //just random number
 	char test_account_info[] = "400000000000;499999999999;VISA;"; //25 29
 
 	if (is_valid_card_num(card_number))
