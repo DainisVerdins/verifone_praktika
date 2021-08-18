@@ -4,15 +4,21 @@
 /*
 todo list:
 FIX MAGICK CONSTANTS NUMBERS
-
+ think about what Range start and range end could be in diferent length;
 */
-
+/**
+ * Checks if an target is between low and high.
+ * @param {int} low - The integer in question
+ * @param {int} high - The integer to compare to
+ * @param {int} target - the range
+ */
 #define STR_BUFFER_SIZE 255
 
 
 struct CardInfo {
 
 	char name[255] = {};
+	//ranges are from 1 to 16 digits
 	char range_start[16] = {};
 	char range_end[16] = {};
 	bool found = false; //FIX
@@ -30,20 +36,33 @@ struct CardInfo {
 };
 
 
+// Returns true if target in range [low..high], else false    
+bool in_range(const char *low,const char * high, const char * target) {
+	return strcmp(target, low) >= 0 && strcmp(target, high) <= 0;
+}
 
-void get_names(const char* str, const char* card_number)
+//parses  auth_str into strings and puts data into CardInfo struct
+void parse_card_info(const char* auth_str,CardInfo &card)
 {
-	// TODO think about what Range start and range end could be in diferent length;
+	//Range_Start;Range_End;Name; - format of inputed string
+
+	sscanf_s(auth_str, "%[0-9];%[0-9];%[a-zA-Z];", card.range_start, card.get_range_size(),
+												   card.range_end, card.get_range_size(),
+												   card.name, card.get_name_size());
+}
+
+void get_names(const char* auth_str, const char* card_number)
+{
+	
 	int i;
 	CardInfo card;
 	
+	parse_card_info(auth_str, card);
 	
-	sscanf_s(str, "%[0-9];%[0-9];%[a-zA-Z];",card.range_start, card.get_range_size(),
-											 card.range_end, card.get_range_size(),
-											 card.name, card.get_name_size());
 
 	puts("\n");
 
+	//check if card_number is in range of auth_str
 	for ( i = 0; i < card.get_range_length(); ++i)
 	{
 		if (card.range_start[i]> card_number[i] || card.range_end[i] < card_number[i])
