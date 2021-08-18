@@ -36,8 +36,10 @@ struct CardInfo {
 };
 
 
-// Returns true if target in range [low..high], else false    
+// Returns true if target in range [low..high], else false
+//assumed what inputs are strings with \0
 bool in_range(const char *low,const char * high, const char * target) {
+	//probably need to use strncmp, to avoid error if string do not contain \n
 	return strcmp(target, low) >= 0 && strcmp(target, high) <= 0;
 }
 
@@ -51,7 +53,11 @@ void parse_card_info(const char* auth_str,CardInfo &card)
 												   card.name, card.get_name_size());
 }
 
-void get_names(const char* auth_str, const char* card_number)
+//check if card_number is valid for aut_str
+//means auth_str contains ranges if card number is between ranges
+//then is passed. 
+//auth_str contains data to "apply" card number
+bool is_auth_passed(const char* auth_str, const char* card_number)
 {
 	
 	int i;
@@ -62,26 +68,16 @@ void get_names(const char* auth_str, const char* card_number)
 
 	puts("\n");
 
-	//check if card_number is in range of auth_str
-	for ( i = 0; i < card.get_range_length(); ++i)
+	if (in_range(card.range_start,card.range_end,card_number))
 	{
-		if (card.range_start[i]> card_number[i] || card.range_end[i] < card_number[i])
-		{
-			printf("no match");
-			return;
-		}
+		printf("match\n");
+			puts(card.range_start);
+			puts(card_number);
+			puts(card.range_end);
+			puts(card.name);
+			return true;
 	}
-	printf("match\n");
-	puts(card.range_start);
-	puts(card_number);
-	puts(card.range_end);
-	puts(card.name);
-	//proverka na vallidnostsj
-
-
-
-
-	
+	return false;
 }
 
 
@@ -112,7 +108,7 @@ char* get_name(const char file_name[], char card_number[])
 
 		while (fgets(buff, buff_size, pfile) != NULL) {
 
-			 get_names(buff, card_number);
+			 is_auth_passed(buff, card_number);
 		}
 
 		fclose(pfile);
@@ -150,9 +146,7 @@ bool is_valid_card_num(const char card_number[])
 int main()
 {
 	char file_name[] = "file.txt";
-	//char card_number[] = "1234567890123456"; //just random number
-	char card_number[] =   "6799999900004646"; //just random number
-	//char test_account_info[] = "400000000000;499999999999;VISA;"; //25 29
+	char card_number[] =   "4799999900004646"; //just random number
 
 	if (is_valid_card_num(card_number))
 	{
