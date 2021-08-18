@@ -1,6 +1,11 @@
 #include<stdio.h>
 #include <cstring>//pause
 #include <cctype>//isdigit
+
+
+#include<vector>
+#include<string>
+
 /*
 todo list:
 FIX MAGICK CONSTANTS NUMBERS
@@ -13,8 +18,8 @@ FIX MAGICK CONSTANTS NUMBERS
  * @param {int} high - The integer to compare to
  * @param {int} target - the range
  */
-#define STR_BUFFER_SIZE 255
-
+#define MAX_STRING_LENGTH 255
+#define MAX_TOKENS 10
 
 struct CardInfo {
 
@@ -23,53 +28,97 @@ struct CardInfo {
 	char range_start[16] = {};
 	char range_end[16] = {};
 
-	int get_name_length() { return strnlen_s(name,255); }
-	
+	int get_name_length() { return strnlen_s(name, 255); }
+
 	//get length of range_start
-	int get_range_length() { return strnlen_s(range_start,16); }
+	int get_range_length() { return strnlen_s(range_start, 16); }
 
 	//return maximal amount of numbers what can contain range
 	int get_range_size() { return 16; }
 	//return maximal amount of numbers what can contain name
 	int get_name_size() { return 255; }
-	
+
 };
 
 
 // Returns true if target in range [low..high], else false
 //assumed what inputs are strings with \0
-bool in_range(const char *low,const char * high, const char * target) 
+bool in_range(const char* low, const char* high, const char* target)
 {
 	//probably need to use strncmp, to avoid error if string do not contain \n
 	return strcmp(target, low) >= 0 && strcmp(target, high) <= 0;
 }
 
-//parses  auth_str into strings and puts data into CardInfo struct
-void parse_card_info(const char* auth_str,CardInfo &card)
-{
-	//Range_Start;Range_End;Name; - format of inputed string
 
-	sscanf_s(auth_str, "%[0-9];%[0-9];%[a-zA-Z];", card.range_start, card.get_range_size(),
-												   card.range_end, card.get_range_size(),
-												   card.name, card.get_name_size());
+//parses  string into tokens
+int parse_string(char pinput_str[MAX_STRING_LENGTH], const char* delimiter, char* ptoken[MAX_TOKENS])
+{
+	//probably can avoid by jsut using sscanf_s
+	int i;
+	char* pch;
+	char* next_token = NULL;
+
+	char key[] = "\r\n";//enter in windows
+	i = 0;
+
+	pch = strpbrk(pinput_str, key); //strpbrk
+	while (pch != NULL)
+	{
+		*pch = '\0';
+		pch = strpbrk(pch + 1, key);
+	}
+
+
+
+	ptoken[i] = strtok_s(pinput_str, delimiter, &next_token);
+	++i;
+
+	while ((ptoken[i] = strtok_s(NULL, delimiter, &next_token)) != NULL) {
+
+		++i;
+	}
+	return i;
+
+
 }
+
+
 
 //check if card_number is valid for aut_str
 //means auth_str contains ranges if card number is between those ranges then is passed. 
 //auth_str contains data to check by card number
-bool is_auth_passed(const char* auth_str, const char* card_number, CardInfo& card)
+bool is_auth_passed(const char* auth_str, const char* card_number)
 {
+	int number_of_prms;
+	char buff[MAX_STRING_LENGTH];
+	char key[] = "\r\n";
 
-	parse_card_info(auth_str, card);
+	strcpy_s(buff, auth_str);
 
-	if (in_range(card.range_start,card.range_end,card_number))
+	char* ptoken[MAX_TOKENS];
+
+	number_of_prms = parse_string(buff, ";", ptoken);
+
+	//ptoken[0]- range start
+	//ptoken[1] - range end
+	//ptoken[2] - name
+
+	printf("%i\n", number_of_prms);
+	printf("tokens result\n");
+	for (size_t i = 0; i < number_of_prms; i++)
+	{
+		puts(ptoken[i]);
+	}
+
+
+
+	printf("\n");
+
+	if (in_range(ptoken[0], ptoken[1], card_number))
 	{
 		printf("match\n");
-			puts(card.range_start);
-			puts(card_number);
-			puts(card.range_end);
-			puts(card.name);
-			return true;
+		
+		return true;
 	}
 	return false;
 }
@@ -81,7 +130,7 @@ bool is_auth_passed(const char* auth_str, const char* card_number, CardInfo& car
 //searches card number in files data
 //if found returns true and Name of card user
 //otherwise false
-char* get_name(const char file_name[], char card_number[], CardInfo &card)
+char* get_name(const char file_name[], char card_number[], CardInfo& card)
 {
 
 	FILE* pfile;
@@ -102,7 +151,8 @@ char* get_name(const char file_name[], char card_number[], CardInfo &card)
 
 		while (fgets(buff, buff_size, pfile) != NULL) {
 
-			if (is_auth_passed(buff, card_number,card)) {
+			if (is_auth_passed(buff, card_number)) {
+				fclose(pfile);
 				return pname;
 			}
 		}
@@ -138,12 +188,21 @@ bool is_valid_card_num(const char card_number[])
 	return true;
 }
 
+//check if inputed sum is in correct format
+bool is_valid_sum(const  char inputed_sum[])
+{
 
+
+
+
+
+	return false;
+}
 
 int main()
 {
 	char file_name[] = "file.txt";
-	char card_number[] =   "4799999900004646"; //just random number
+	char card_number[] = "9999999900004646"; //just random number
 	CardInfo card;
 
 	if (is_valid_card_num(card_number))
@@ -156,7 +215,29 @@ int main()
 	}
 
 
-	get_name(file_name, card_number,card);
+	get_name(file_name, card_number, card);
+	////test cases
+	//std::vector<std::string>tests{
+	//"1234.56",//valid
+	//"1.56",//valid
+	//"56.1234",
+	//"12341234.56",
+	//"1234*56",
+	//"asds.dd",
+	//"1234.0",
+	//"123..0",
+	//".25",
+	//"1.2",
+	//"1.22345"
+	//".2",
+	//};
+
+	//for (size_t i = 0; i < 9; i++)
+	//{
+	//	if (is_valid_sum(tests[i].c_str())) {
+	//		printf("%s\n", tests[i].c_str());
+	//	}
+	//}
 
 
 

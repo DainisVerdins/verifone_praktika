@@ -58,4 +58,7 @@ Laika limita uzdevuma izpildei nav, galvenais ir kvalitāte!
 - [ ] check if DEPOSIT input is valid
 - [ ] write cards name and DEPOSIT to file
 - [ ] while loop for promt and user interface
-- [ ] error msg's 
+- [ ] error msg's strtok 
+
+Fix list
+- [ ] Fix strtok thingy
