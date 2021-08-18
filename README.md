@@ -61,4 +61,4 @@ Laika limita uzdevuma izpildei nav, galvenais ir kvalitāte!
 - [ ] error msg's strtok 
 
 Fix list
-- [ ] Fix strtok thingy
+- [ ] avoid struct probably better would be array

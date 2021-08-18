@@ -23,12 +23,12 @@ FIX MAGICK CONSTANTS NUMBERS
 
 struct CardInfo {
 
-	char name[255] = {};
+	char name[MAX_STRING_LENGTH] = {};
 	//ranges are from 1 to 16 digits
 	char range_start[16] = {};
 	char range_end[16] = {};
 
-	int get_name_length() { return strnlen_s(name, 255); }
+	int get_name_length() { return strnlen_s(name, MAX_STRING_LENGTH); }
 
 	//get length of range_start
 	int get_range_length() { return strnlen_s(range_start, 16); }
@@ -36,7 +36,7 @@ struct CardInfo {
 	//return maximal amount of numbers what can contain range
 	int get_range_size() { return 16; }
 	//return maximal amount of numbers what can contain name
-	int get_name_size() { return 255; }
+	int get_name_size() { return MAX_STRING_LENGTH; }
 
 };
 
@@ -68,8 +68,6 @@ int parse_string(char pinput_str[MAX_STRING_LENGTH], const char* delimiter, char
 		pch = strpbrk(pch + 1, key);
 	}
 
-
-
 	ptoken[i] = strtok_s(pinput_str, delimiter, &next_token);
 	++i;
 
@@ -79,7 +77,6 @@ int parse_string(char pinput_str[MAX_STRING_LENGTH], const char* delimiter, char
 	}
 	return i;
 
-
 }
 
 
@@ -87,36 +84,28 @@ int parse_string(char pinput_str[MAX_STRING_LENGTH], const char* delimiter, char
 //check if card_number is valid for aut_str
 //means auth_str contains ranges if card number is between those ranges then is passed. 
 //auth_str contains data to check by card number
-bool is_auth_passed(const char* auth_str, const char* card_number)
+bool is_auth_passed(const char* auth_str, const char* card_number,  char card_name[])
 {
 	int number_of_prms;
 	char buff[MAX_STRING_LENGTH];
 	char key[] = "\r\n";
 
-	strcpy_s(buff, auth_str);
+	strcpy_s(buff, MAX_STRING_LENGTH, auth_str);
 
 	char* ptoken[MAX_TOKENS];
 
 	number_of_prms = parse_string(buff, ";", ptoken);
 
+	//tokens and what they contain
 	//ptoken[0]- range start
 	//ptoken[1] - range end
 	//ptoken[2] - name
-
-	printf("%i\n", number_of_prms);
-	printf("tokens result\n");
-	for (size_t i = 0; i < number_of_prms; i++)
-	{
-		puts(ptoken[i]);
-	}
-
-
-
-	printf("\n");
+	if (number_of_prms != 3) { return false; }
 
 	if (in_range(ptoken[0], ptoken[1], card_number))
 	{
-		printf("match\n");
+	
+		strcpy_s(card_name,MAX_STRING_LENGTH, ptoken[2]);
 		
 		return true;
 	}
@@ -130,14 +119,12 @@ bool is_auth_passed(const char* auth_str, const char* card_number)
 //searches card number in files data
 //if found returns true and Name of card user
 //otherwise false
-char* get_name(const char file_name[], char card_number[], CardInfo& card)
+bool get_name(const char file_name[], const char card_number[], char  card_name[])
 {
 
 	FILE* pfile;
-	char* pname;
-	const size_t buff_size = 255;
-	pname = NULL;
-	char buff[255];
+
+	char buff[MAX_STRING_LENGTH];
 
 
 	fopen_s(&pfile, file_name, "rt");
@@ -145,20 +132,20 @@ char* get_name(const char file_name[], char card_number[], CardInfo& card)
 	if (pfile == NULL) {
 
 		printf("cannot find file \"%s\"", file_name);
-		return NULL;
+		return false;
 	}
 	else {
 
-		while (fgets(buff, buff_size, pfile) != NULL) {
+		while (fgets(buff, MAX_STRING_LENGTH, pfile) != NULL) {
 
-			if (is_auth_passed(buff, card_number)) {
+			if (is_auth_passed(buff, card_number, card_name)) {
 				fclose(pfile);
-				return pname;
+				return true;
 			}
 		}
 		fclose(pfile);
 		//TODO: here sleep for 2 seconds
-		return pname;
+		return false;
 	}
 
 }
@@ -202,7 +189,7 @@ bool is_valid_sum(const  char inputed_sum[])
 int main()
 {
 	char file_name[] = "file.txt";
-	char card_number[] = "9999999900004646"; //just random number
+	char card_number[] = "5199999900004646"; //just random number
 	CardInfo card;
 
 	if (is_valid_card_num(card_number))
@@ -214,8 +201,12 @@ int main()
 		printf("bad cards number -> %s\n", card_number);
 	}
 
+	char card_name[MAX_STRING_LENGTH];
+	if (get_name(file_name, card_number, card_name)) {
 
-	get_name(file_name, card_number, card);
+		puts(card_name);
+	}
+	//printf("%s\n",get_name(file_name, card_number));
 	////test cases
 	//std::vector<std::string>tests{
 	//"1234.56",//valid
