@@ -52,8 +52,8 @@ Laika limita uzdevuma izpildei nav, galvenais ir kvalitāte!
 
 - [x] is inputed card number valid
 - [x] read file.txt
-- [ ] parse inputed string from file.txt
-- [ ] found if inputed card number match, if so return name of card string
+- [x] parse inputed string from file.txt
+- [x] found if inputed card number match, if so return name of card string
 - [ ] promt user input DEPOSIT
 - [ ] check if DEPOSIT input is valid
 - [ ] write cards name and DEPOSIT to file
