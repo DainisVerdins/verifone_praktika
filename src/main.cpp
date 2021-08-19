@@ -30,19 +30,7 @@ int parse_string(char str[MAX_STRING_LENGTH], const char* delimiter, char* token
 	int i;
 	char* pch;
 	char* next_token = NULL;
-
-	//char line_break_symbols[] = "\r\n";//enter in windows
 	i = 0;
-
-	////'elimenate' the line_break simbols  
-	//pch = strpbrk(str, line_break_symbols);
-	//while (pch != NULL)
-	//{
-	//	*pch = '\0';
-	//	pch = strpbrk(pch + 1, line_break_symbols);
-	//}
-
-	////str[strcspn(str, "\r\n")] = 0; //TODO: 
 
 	//get rid off new line symbol 
 	str[strcspn(str, "\r\n")] = '\0';
@@ -283,8 +271,6 @@ int main()
 
 		if (is_valid_card_num(input_buff))
 		{
-			printf("is valid card number\n");
-
 			//input buff contains credic card number
 			if (!get_name(INPUT_FILE_NAME, input_buff, card_name_buff))
 			{
