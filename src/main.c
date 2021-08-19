@@ -1,3 +1,24 @@
+/*
+* Description:
+* Programme what promts to user input 16 digits big card number
+* if card is valid and found between ranges in database(in this case file.txt file)
+* then  promts to write sum(in specific format)
+* if all ok with sum writes into file -> card number;name of card(found in DB); entered sum;
+* 
+* Assumed:
+* in file.txt data is invariant and in specific format 
+* format - rangeStart;rangeEnd;Name;
+* 
+* output is in format cardNumber;nameOfCard;EnteredSum;
+* 
+* no negative sum can enter user
+* 
+* @Author 
+* RazdolbayOne
+*/
+
+
+
 #include<stdio.h>
 #include <string.h>//pause
 #include <ctype.h>//isdigit
@@ -45,7 +66,6 @@ int parse_string(char str[MAX_STRING_LENGTH], const char* delimiter, char* token
 	return i;
 
 }
-
 
 
 //check if card_number is valid for aut_str
@@ -143,7 +163,7 @@ bool write_card_info(const char file_name[], const char card_number[], const cha
 //check if card_number have valid specifics 
 bool is_valid_card_num(const char card_number[])
 {
-	int card_length = strlen(card_number);
+	const int card_length = (int)strnlen_s(card_number, MAX_STRING_LENGTH);
 	int i = 0;
 
 
@@ -181,7 +201,7 @@ bool is_valid_sum(const  char inputed_sum[])
 	int min_sum_length = min_n_count + m_count + 1;
 	char delimeter = '.';
 
-	int str_sum_length = strlen(inputed_sum);
+	int str_sum_length = (int)strnlen_s(inputed_sum,MAX_STRING_LENGTH);
 
 
 	if (str_sum_length > max_sum_length || str_sum_length < min_sum_length) {
@@ -308,7 +328,7 @@ int main()
 			}
 		}
 		else {
-			fprintf(stderr, "bad card number -> %s <- Try diferent one\n", input_buff);
+			fprintf(stderr, "bad card number \"%s\" Try diferent one\n", input_buff);
 		}
 
 	}
