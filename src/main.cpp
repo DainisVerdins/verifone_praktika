@@ -20,21 +20,26 @@ FIX MAGICK CONSTANTS NUMBERS
  */
 #define MAX_STRING_LENGTH 255
 #define MAX_TOKENS 10
+ 
+//how many digits inside range could be 
+#define MAX_RANGE_LENGTH 16
+
+#define CARD_NUMBER_LENGTH 16
 
 struct CardInfo {
 
 	char name[MAX_STRING_LENGTH] = {};
 	//ranges are from 1 to 16 digits
-	char range_start[16] = {};
-	char range_end[16] = {};
+	char range_start[MAX_RANGE_LENGTH] = {};
+	char range_end[MAX_RANGE_LENGTH] = {};
 
 	int get_name_length() { return strnlen_s(name, MAX_STRING_LENGTH); }
 
 	//get length of range_start
-	int get_range_length() { return strnlen_s(range_start, 16); }
+	int get_range_length() { return strnlen_s(range_start, MAX_RANGE_LENGTH); }
 
 	//return maximal amount of numbers what can contain range
-	int get_range_size() { return 16; }
+	int get_range_size() { return MAX_RANGE_LENGTH; }
 	//return maximal amount of numbers what can contain name
 	int get_name_size() { return MAX_STRING_LENGTH; }
 
@@ -58,20 +63,22 @@ int parse_string(char pinput_str[MAX_STRING_LENGTH], const char* delimiter, char
 	char* pch;
 	char* next_token = NULL;
 
-	char key[] = "\r\n";//enter in windows
+	char line_break_symbols[] = "\r\n";//enter in windows
 	i = 0;
-
-	pch = strpbrk(pinput_str, key); //strpbrk
+	
+	//'elimenate' the line_break simbols  
+	pch = strpbrk(pinput_str, line_break_symbols);
 	while (pch != NULL)
 	{
 		*pch = '\0';
-		pch = strpbrk(pch + 1, key);
+		pch = strpbrk(pch + 1, line_break_symbols);
 	}
 
 	ptoken[i] = strtok_s(pinput_str, delimiter, &next_token);
 	++i;
 
-	while ((ptoken[i] = strtok_s(NULL, delimiter, &next_token)) != NULL) {
+	while ((ptoken[i] = strtok_s(NULL, delimiter, &next_token)) != NULL) 
+	{
 
 		++i;
 	}
@@ -88,7 +95,7 @@ bool is_auth_passed(const char* auth_str, const char* card_number, char card_nam
 {
 	int number_of_prms;
 	char buff[MAX_STRING_LENGTH];
-	char key[] = "\r\n";
+	char line_break_symbols[] = "\r\n";
 
 	strcpy_s(buff, MAX_STRING_LENGTH, auth_str);
 
@@ -165,7 +172,7 @@ bool write_card_info(const char file_name[], const char card_number[], const cha
 
 	if (pfile == NULL) {
 
-		printf("cannot find file \"%s\"", file_name);
+		printf("cannot find file or error appiered in its creation \"%s\"", file_name);
 		return false;
 	}
 	else {
@@ -187,10 +194,8 @@ bool is_valid_card_num(const char card_number[])
 	int card_length = strlen(card_number);
 	int i = 0;
 
-	//card number must precisly 16 digits
-	const int chars_in_card = 16;//probably to need add as macros
 
-	if (card_length< chars_in_card || card_length>chars_in_card)
+	if (card_length!= CARD_NUMBER_LENGTH)
 	{
 		return false;
 	}
