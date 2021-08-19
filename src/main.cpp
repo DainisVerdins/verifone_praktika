@@ -196,40 +196,49 @@ bool is_valid_sum(const  char inputed_sum[])
 	int min_sum_length = min_n_count + m_count + 1;
 	char delimeter = '.';
 
-	int sum_length = strlen(inputed_sum);
+	int str_sum_length = strlen(inputed_sum);
 
 
-	if (sum_length > max_sum_length || sum_length < min_sum_length) {
+	if (str_sum_length > max_sum_length || str_sum_length < min_sum_length) {
 		return false;
 	}
 
-	int delimeter_count = 0;
-
-	//check if string contains only digits and delimeter
-	//also count if found delimeters
-	for (size_t i = 0; i < sum_length; i++)
+	int delimeter_pos = str_sum_length; //position of out boundry
+	//find firs delimeter
+	for (int i = 0; i < str_sum_length; i++)
 	{
-		if (isdigit(inputed_sum[i]) || (inputed_sum[i] == delimeter)) {
-			if (inputed_sum[i] == delimeter)
-			{
-				++delimeter_count;
-			}
+		if (inputed_sum[i] == delimeter) {
+			delimeter_pos = i;
+			break;
 		}
+	}
+	//in case delimeter not found
+	if (delimeter_pos == str_sum_length)
+	{
+		return false;
+	}
+	//delimeter_pos+ m_count should target on last index of string
+	//str[n-1] is to get last index of string where n is length
+	if (delimeter_pos + m_count != str_sum_length - 1)
+	{
+		return false;
+	}
+
+	//check if delimeter is in rigth position
+	if (delimeter_pos<min_n_count || delimeter_pos>max_n_count)
+	{
+		return false;
+	}
+
+	//check if n and m part of sum only contain digits
+	//if i is delimeter_pos then ignore 
+	for (size_t i = 0; i < str_sum_length; i++)
+	{
+		if (isdigit(inputed_sum[i]) || delimeter_pos == i) {}
 		else {
 			return false;
 		}
-	}
-	
-	if (delimeter_count != 1)
-	{
-		return false;
-	}
 
-	// (last index in string is str[n-1] where n is str length)
-	// delimeter ix m_count back from last index  string
-	//it must be delimeter if not then format is not correct
-	if (inputed_sum[sum_length - m_count - 1] != delimeter) {
-		return false;
 	}
 
 
@@ -275,8 +284,8 @@ int main()
 	"1..2",
 	"1.2.",
 	"1.22345",
-	".2"
-	"1234056",
+	".2",
+	"1234056"
 	};
 
 	for (size_t i = 0; i < tests.size(); i++)
