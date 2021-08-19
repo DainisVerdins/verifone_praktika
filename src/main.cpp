@@ -1,50 +1,18 @@
 #include<stdio.h>
 #include <cstring>//pause
 #include <cctype>//isdigit
+#include <windows.h> //Sleep()
 
 
-#include<vector>
-#include<string>
-
-/*
-todo list:
-FIX MAGICK CONSTANTS NUMBERS
- think about what Range start and range end could be in diferent length;
-
-*/
-/**
- * Checks if an target is between low and high.
- * @param {int} low - The integer in question
- * @param {int} high - The integer to compare to
- * @param {int} target - the range
- */
 #define MAX_STRING_LENGTH 255
 #define MAX_TOKENS 10
- 
+
 //how many digits inside range could be 
 #define MAX_RANGE_LENGTH 16
-
 #define CARD_NUMBER_LENGTH 16
-
-struct CardInfo {
-
-	char name[MAX_STRING_LENGTH] = {};
-	//ranges are from 1 to 16 digits
-	char range_start[MAX_RANGE_LENGTH] = {};
-	char range_end[MAX_RANGE_LENGTH] = {};
-
-	int get_name_length() { return strnlen_s(name, MAX_STRING_LENGTH); }
-
-	//get length of range_start
-	int get_range_length() { return strnlen_s(range_start, MAX_RANGE_LENGTH); }
-
-	//return maximal amount of numbers what can contain range
-	int get_range_size() { return MAX_RANGE_LENGTH; }
-	//return maximal amount of numbers what can contain name
-	int get_name_size() { return MAX_STRING_LENGTH; }
-
-};
-
+#define EXIT_SEQUENCE "q"
+#define INPUT_FILE_NAME "file.txt"
+#define OUTPUT_FILE_NAME "trans.txt"
 
 // Returns true if target in range [low..high], else false
 //assumed what inputs are strings with \0
@@ -65,7 +33,7 @@ int parse_string(char pinput_str[MAX_STRING_LENGTH], const char* delimiter, char
 
 	char line_break_symbols[] = "\r\n";//enter in windows
 	i = 0;
-	
+
 	//'elimenate' the line_break simbols  
 	pch = strpbrk(pinput_str, line_break_symbols);
 	while (pch != NULL)
@@ -74,10 +42,12 @@ int parse_string(char pinput_str[MAX_STRING_LENGTH], const char* delimiter, char
 		pch = strpbrk(pch + 1, line_break_symbols);
 	}
 
+	//pinput_str[strcspn(pinput_str, "\r\n")] = 0; //TODO: 
+
 	ptoken[i] = strtok_s(pinput_str, delimiter, &next_token);
 	++i;
 
-	while ((ptoken[i] = strtok_s(NULL, delimiter, &next_token)) != NULL) 
+	while ((ptoken[i] = strtok_s(NULL, delimiter, &next_token)) != NULL)
 	{
 
 		++i;
@@ -141,7 +111,7 @@ bool get_name(const char file_name[], const char card_number[], char  card_name[
 
 	if (pfile == NULL) {
 
-		printf("cannot find file \"%s\"", file_name);
+		fprintf(stderr, "cannot find file \"%s\"\n", file_name);
 		return false;
 	}
 	else {
@@ -154,17 +124,16 @@ bool get_name(const char file_name[], const char card_number[], char  card_name[
 			}
 		}
 		fclose(pfile);
-		//TODO: here sleep for 2 seconds
 		return false;
 	}
 
 }
 
 //writes input card information into file
-bool write_card_info(const char file_name[], const char card_number[], const char sum[],const char name[]) {
+bool write_card_info(const char file_name[], const char card_number[], const char sum[], const char name[]) {
 	FILE* pfile;
 
-	char buff[MAX_STRING_LENGTH]; 
+	char buff[MAX_STRING_LENGTH];
 
 	//write to file erasing previsus data 
 	//if not found file  create one and write in it
@@ -172,12 +141,12 @@ bool write_card_info(const char file_name[], const char card_number[], const cha
 
 	if (pfile == NULL) {
 
-		printf("cannot find file or error appiered in its creation \"%s\"", file_name);
+		printf("cannot find file or error appiered in its creation \"%s\"\n", file_name);
 		return false;
 	}
 	else {
 		//just in case inputted strings do not have termination symbol
-		sprintf_s(buff, MAX_STRING_LENGTH,"%s;%s;%s;", card_number, name,sum);
+		sprintf_s(buff, MAX_STRING_LENGTH, "%s;%s;%s;", card_number, name, sum);
 		fprintf_s(pfile, "%s", buff);
 
 		fclose(pfile);
@@ -195,7 +164,7 @@ bool is_valid_card_num(const char card_number[])
 	int i = 0;
 
 
-	if (card_length!= CARD_NUMBER_LENGTH)
+	if (card_length != CARD_NUMBER_LENGTH)
 	{
 		return false;
 	}
@@ -278,33 +247,90 @@ bool is_valid_sum(const  char inputed_sum[])
 	return true;
 }
 
+bool is_exit_seq(const char str[]) {
+
+	return  !strcmp(EXIT_SEQUENCE, str);
+}
+
+// reading users inputed data
+void get_user_input(char input_buff[], const int input_buff_length) {
+
+
+	fgets(input_buff, input_buff_length, stdin);
+
+	//get rid off new line symbol 
+	input_buff[strcspn(input_buff, "\n")] = '\0';
+
+	//clear stdin buffer //probably need to use flush
+	rewind(stdin);
+}
+
 int main()
 {
-	char file_name[] = "file.txt";
-	char card_number[] = "5199999900004646"; //just random number
-	CardInfo card;
+	char card_name_buff[MAX_STRING_LENGTH];
+	//const int input_buff_length = CARD_NUMBER_LENGTH + 1;//plus one because  new line charecter													 
+	char input_buff[MAX_STRING_LENGTH];
+	const int card_number_size = CARD_NUMBER_LENGTH + 1;//+1 for '\0'
+	char card_number[card_number_size];
 
-	if (is_valid_card_num(card_number))
+	while (true) 
 	{
-		puts(card_number);
+		printf("Input precisely 16 digits big card number and press enter\n");
+		printf(" or press 'q' and enter to exit.\n");
+		printf("if input is longer than 16 digits it will be cut to 16 digits big.\n");
+
+
+		get_user_input(input_buff, MAX_STRING_LENGTH);
+
+		//exit sequence check
+		if (is_exit_seq(input_buff)) { break; }
+
+		if (is_valid_card_num(input_buff))
+		{
+			printf("is valid card number\n");
+
+			//input buff contains credic card number
+			if (!get_name(INPUT_FILE_NAME, input_buff, card_name_buff))
+			{
+				fprintf(stderr, "inputted card number was not found in recordings. Try different one\n");
+				Sleep(2000);// 2 seconds
+			}
+			else {
+				//copy from input_buff card number into card_number string
+				strcpy_s(card_number, card_number_size, input_buff);
+
+				while (true)
+				{
+					printf("Enter the sum in format 'nnnn.mm' where:\n");
+					printf("'nnnn' – 1 to 4 long sum in euros, \n");
+					printf("'mm' – precisely 2 digits sum in cents. ,\n");
+					printf("press 'q' and enter to exit.\n");
+
+					//now input_buff contain users imputed sum
+					get_user_input(input_buff, MAX_STRING_LENGTH);
+
+					if (is_exit_seq(input_buff)) { break; }
+
+
+					if (is_valid_sum(input_buff))
+					{
+						write_card_info(OUTPUT_FILE_NAME, card_number, input_buff, card_name_buff);
+						puts(card_name_buff);
+						break;
+					}
+					else {
+						fprintf(stderr, "entered sum did not passed validity test .Try again enter the sum\n");
+					}
+
+				}
+
+			}
+		}
+		else {
+			fprintf(stderr, "bad card number -> %s <- Try diferent one\n", input_buff);
+		}
 
 	}
-	else {
-		printf("bad cards number -> %s\n", card_number);
-	}
-
-	char card_name[MAX_STRING_LENGTH];
-
-	if (get_name(file_name, card_number, card_name)) {
-
-		puts(card_name);
-		write_card_info("trans.txt", card_number,"1234.56", card_name);
-	}
-
-	
-
-
-
 	return 0;
 }
 
