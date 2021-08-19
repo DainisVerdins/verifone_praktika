@@ -153,6 +153,34 @@ bool get_name(const char file_name[], const char card_number[], char  card_name[
 
 }
 
+//writes input card information into file
+bool write_card_info(const char file_name[], const char card_number[], const char sum[],const char name[]) {
+	FILE* pfile;
+
+	char buff[MAX_STRING_LENGTH]; 
+
+	//write to file erasing previsus data 
+	//if not found file  create one and write in it
+	fopen_s(&pfile, file_name, "w+");
+
+	if (pfile == NULL) {
+
+		printf("cannot find file \"%s\"", file_name);
+		return false;
+	}
+	else {
+		//just in case inputted strings do not have termination symbol
+		sprintf_s(buff, MAX_STRING_LENGTH,"%s;%s;%s;", card_number, name,sum);
+		fprintf_s(pfile, "%s", buff);
+
+		fclose(pfile);
+		return true;
+	}
+
+
+}
+
+
 //check if card_number have valid specifics 
 bool is_valid_card_num(const char card_number[])
 {
@@ -261,39 +289,14 @@ int main()
 	}
 
 	char card_name[MAX_STRING_LENGTH];
+
 	if (get_name(file_name, card_number, card_name)) {
 
 		puts(card_name);
+		write_card_info("trans.txt", card_number,"1234.56", card_name);
 	}
 
-	//test cases
-	std::vector<std::string>tests{
-	"1234.56",//valid
-	"123456",
-	"1.56",//valid
-	"12.56",//valid
-	"123.56",//valid
-	"56.1234",
-	"12341234.56",
-	"1234*56",
-	"asds.dd",
-	"1234.0",
-	"123..0",
-	".25",
-	"1.2",
-	"1..2",
-	"1.2.",
-	"1.22345",
-	".2",
-	"1234056"
-	};
-
-	for (size_t i = 0; i < tests.size(); i++)
-	{
-		if (is_valid_sum(tests[i].c_str())) {
-			printf("%s\n", tests[i].c_str());
-		}
-	}
+	
 
 
 

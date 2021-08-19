@@ -25,6 +25,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="file.txt" />
-    <Text Include="test_card_acounts.txt" />
+    <Text Include="trans.txt" />
   </ItemGroup>
 </Project>
