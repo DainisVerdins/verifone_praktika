@@ -54,11 +54,11 @@ Laika limita uzdevuma izpildei nav, galvenais ir kvalitāte!
 - [x] read file.txt
 - [x] parse inputed string from file.txt
 - [x] found if inputed card number match, if so return name of card string
-- [ ] promt user input DEPOSIT
-- [ ] check if DEPOSIT input is valid
-- [ ] write cards name and DEPOSIT to file
-- [ ] while loop for promt and user interface
-- [ ] error msg's strtok 
+- [x] promt user input DEPOSIT
+- [x] check if DEPOSIT input is valid
+- [x] write cards name and DEPOSIT to file
+- [x] while loop for promt and user interface
+- [x} error msg's strtok 
 
 Fix list
 - [ ] avoid struct probably better would be array

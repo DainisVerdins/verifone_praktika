@@ -24,30 +24,33 @@ bool in_range(const char* low, const char* high, const char* target)
 
 
 //parses  string into tokens
-//be aware pinput_str will be changed on end of operation
-int parse_string(char pinput_str[MAX_STRING_LENGTH], const char* delimiter, char* ptoken[MAX_TOKENS])
+//be aware str will be changed on end of operation
+int parse_string(char str[MAX_STRING_LENGTH], const char* delimiter, char* token[MAX_TOKENS])
 {
 	int i;
 	char* pch;
 	char* next_token = NULL;
 
-	char line_break_symbols[] = "\r\n";//enter in windows
+	//char line_break_symbols[] = "\r\n";//enter in windows
 	i = 0;
 
-	//'elimenate' the line_break simbols  
-	pch = strpbrk(pinput_str, line_break_symbols);
-	while (pch != NULL)
-	{
-		*pch = '\0';
-		pch = strpbrk(pch + 1, line_break_symbols);
-	}
+	////'elimenate' the line_break simbols  
+	//pch = strpbrk(str, line_break_symbols);
+	//while (pch != NULL)
+	//{
+	//	*pch = '\0';
+	//	pch = strpbrk(pch + 1, line_break_symbols);
+	//}
 
-	//pinput_str[strcspn(pinput_str, "\r\n")] = 0; //TODO: 
+	////str[strcspn(str, "\r\n")] = 0; //TODO: 
 
-	ptoken[i] = strtok_s(pinput_str, delimiter, &next_token);
+	//get rid off new line symbol 
+	str[strcspn(str, "\r\n")] = '\0';
+
+	token[i] = strtok_s(str, delimiter, &next_token);
 	++i;
 
-	while ((ptoken[i] = strtok_s(NULL, delimiter, &next_token)) != NULL)
+	while ((token[i] = strtok_s(NULL, delimiter, &next_token)) != NULL)
 	{
 
 		++i;
@@ -72,40 +75,33 @@ bool is_auth_passed(const char* auth_str, const char* card_number, char card_nam
 
 	/*probably can avoid by jsut using sscanf_s*/
 
-	char* ptoken[MAX_TOKENS];
+	char* token[MAX_TOKENS];
 
-	number_of_prms = parse_string(buff, ";", ptoken);
+	number_of_prms = parse_string(buff, ";", token);
 
 	//tokens and what they contain
-	//ptoken[0]- range start
-	//ptoken[1] - range end
-	//ptoken[2] - name
+	//token[0]- range start
+	//token[1] - range end
+	//token[2] - name
 	if (number_of_prms != 3) { return false; }
 
-	if (in_range(ptoken[0], ptoken[1], card_number))
+	if (in_range(token[0], token[1], card_number))
 	{
 
-		strcpy_s(card_name, MAX_STRING_LENGTH, ptoken[2]);
+		strcpy_s(card_name, MAX_STRING_LENGTH, token[2]);
 
 		return true;
 	}
 	return false;
 }
 
-
-
-
-
 //searches card number in files data
 //if found returns true and Name of card user
 //otherwise false
 bool get_name(const char file_name[], const char card_number[], char  card_name[])
 {
-
 	FILE* pfile;
-
 	char buff[MAX_STRING_LENGTH];
-
 
 	fopen_s(&pfile, file_name, "rt");
 
@@ -315,7 +311,7 @@ int main()
 					if (is_valid_sum(input_buff))
 					{
 						write_card_info(OUTPUT_FILE_NAME, card_number, input_buff, card_name_buff);
-						puts(card_name_buff);
+						printf("successfully added\n");
 						break;
 					}
 					else {
