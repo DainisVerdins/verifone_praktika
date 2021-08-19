@@ -1,8 +1,8 @@
 #include<stdio.h>
-#include <cstring>//pause
-#include <cctype>//isdigit
+#include <string.h>//pause
+#include <ctype.h>//isdigit
 #include <windows.h> //Sleep()
-
+#include <stdbool.h> //to use bool
 
 #define MAX_STRING_LENGTH 255
 #define MAX_TOKENS 10
@@ -15,7 +15,7 @@
 #define OUTPUT_FILE_NAME "trans.txt"
 
 // Returns true if target in range [low..high], else false
-//assumed what inputs are strings with \0
+//assumed what inputs are strings with \0 
 bool in_range(const char* low, const char* high, const char* target)
 {
 	//probably need to use strncmp, to avoid error if string do not contain \n
@@ -28,7 +28,6 @@ bool in_range(const char* low, const char* high, const char* target)
 int parse_string(char str[MAX_STRING_LENGTH], const char* delimiter, char* token[MAX_TOKENS])
 {
 	int i;
-	char* pch;
 	char* next_token = NULL;
 	i = 0;
 
@@ -255,7 +254,7 @@ int main()
 	//const int input_buff_length = CARD_NUMBER_LENGTH + 1;//plus one because  new line charecter													 
 	char input_buff[MAX_STRING_LENGTH];
 	const int card_number_size = CARD_NUMBER_LENGTH + 1;//+1 for '\0'
-	char card_number[card_number_size];
+	char card_number[CARD_NUMBER_LENGTH + 1];
 
 	while (true) 
 	{
