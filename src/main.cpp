@@ -24,6 +24,7 @@
 #include <ctype.h>//isdigit
 #include <windows.h> //Sleep()
 #include <stdbool.h> //to use bool
+#include  <io.h>//_access
 
 #define MAX_STRING_LENGTH 255
 #define MAX_TOKENS 10
@@ -137,6 +138,20 @@ bool write_card_info(const char file_name[], const char card_number[], const cha
 	FILE* pfile;
 
 	char buff[MAX_STRING_LENGTH];
+
+	// Check for write permission.
+	// Assume file is read-only.
+	/* modes
+	00	Existence only
+	02	Write-only
+	04	Read-only
+	06	Read and write
+	*/
+	//-1 means true 
+	if ((_access(file_name, 2)) == -1) {
+		printf_s("File %s does not have write permission.\n", file_name);
+		return false;
+	}
 
 	fopen_s(&pfile, file_name, "at");
 
