@@ -41,7 +41,8 @@
 bool in_range(const char* low, const char* high, const char* target)
 {
 	//probably need to use strncmp, to avoid error if string do not contain \n
-	return strcmp(target, low) >= 0 && strcmp(target, high) <= 0;
+	return strncmp(target, low, strnlen_s(low, MAX_STRING_LENGTH)) >= 0 
+		&& strncmp(target, high, strnlen_s(high, MAX_STRING_LENGTH)) <= 0;
 }
 
 
@@ -153,7 +154,7 @@ bool write_card_info(const char file_name[], const char card_number[], const cha
 		return false;
 	}
 
-	fopen_s(&pfile, file_name, "at");
+	fopen_s(&pfile, file_name, "a");
 
 	if (pfile == NULL) {
 
@@ -164,7 +165,7 @@ bool write_card_info(const char file_name[], const char card_number[], const cha
 		//just in case inputted strings do not have termination symbol
 		sprintf_s(buff, MAX_STRING_LENGTH, "%s;%s;%s;", card_number, name, sum);
 
-		fprintf_s(pfile, "%s\n", buff);;
+		fprintf_s(pfile, "%s\n", buff);
 
 		fclose(pfile);
 
