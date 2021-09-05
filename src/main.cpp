@@ -40,7 +40,6 @@
 //assumed what inputs are strings with \0 
 bool in_range(const char* low, const char* high, const char* target)
 {
-	//probably need to use strncmp, to avoid error if string do not contain \n
 	return strncmp(target, low, strnlen_s(low, MAX_STRING_LENGTH)) >= 0 
 		&& strncmp(target, high, strnlen_s(high, MAX_STRING_LENGTH)) <= 0;
 }
@@ -334,7 +333,7 @@ int main()
 							printf("successfully added\n");
 							break;
 						}
-
+						6
 
 					}
 					else {
