@@ -138,24 +138,23 @@ bool write_card_info(const char file_name[], const char card_number[], const cha
 
 	char buff[MAX_STRING_LENGTH];
 
-	//write to file erasing previsus data 
-	//if not found file  create one and write in it
-	fopen_s(&pfile, file_name, "w+");
+	fopen_s(&pfile, file_name, "at");
 
 	if (pfile == NULL) {
 
-		printf("cannot find file or error appiered in its creation \"%s\"\n", file_name);
+		printf("error appiered in \"%s\" creation \n", file_name);
 		return false;
 	}
 	else {
 		//just in case inputted strings do not have termination symbol
 		sprintf_s(buff, MAX_STRING_LENGTH, "%s;%s;%s;", card_number, name, sum);
-		fprintf_s(pfile, "%s", buff);
+
+		fprintf_s(pfile, "%s\n", buff);;
 
 		fclose(pfile);
+
 		return true;
 	}
-
 
 }
 
