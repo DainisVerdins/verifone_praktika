@@ -4,16 +4,16 @@
 * if card is valid and found between ranges in database(in this case file.txt file)
 * then  promts to write sum(in specific format)
 * if all ok with sum writes into file -> card number;name of card(found in DB); entered sum;
-* 
+*
 * Assumed:
-* in file.txt data is invariant and in specific format 
+* in file.txt data is invariant and in specific format
 * format - rangeStart;rangeEnd;Name;
-* 
+*
 * output is in format cardNumber;nameOfCard;EnteredSum;
-* 
+*
 * no negative sum can enter user
-* 
-* @Author 
+*
+* @Author
 * RazdolbayOne
 */
 
@@ -201,7 +201,7 @@ bool is_valid_sum(const  char inputed_sum[])
 	int min_sum_length = min_n_count + m_count + 1;
 	char delimeter = '.';
 
-	int str_sum_length = (int)strnlen_s(inputed_sum,MAX_STRING_LENGTH);
+	int str_sum_length = (int)strnlen_s(inputed_sum, MAX_STRING_LENGTH);
 
 
 	if (str_sum_length > max_sum_length || str_sum_length < min_sum_length) {
@@ -276,7 +276,7 @@ int main()
 	const int card_number_size = CARD_NUMBER_LENGTH + 1;//+1 for '\0'
 	char card_number[CARD_NUMBER_LENGTH + 1];
 
-	while (true) 
+	while (true)
 	{
 		printf("Input precisely 16 digits big card number and press enter\n");
 		printf(" or press 'q' and enter to exit.\n");
@@ -315,9 +315,12 @@ int main()
 
 					if (is_valid_sum(input_buff))
 					{
-						write_card_info(OUTPUT_FILE_NAME, card_number, input_buff, card_name_buff);
-						printf("successfully added\n");
-						break;
+						if (write_card_info(OUTPUT_FILE_NAME, card_number, input_buff, card_name_buff)) {
+							printf("successfully added\n");
+							break;
+						}
+
+
 					}
 					else {
 						fprintf(stderr, "entered sum did not passed validity test .Try again enter the sum\n");
