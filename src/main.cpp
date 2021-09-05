@@ -333,7 +333,6 @@ int main()
 							printf("successfully added\n");
 							break;
 						}
-						6
 
 					}
 					else {
