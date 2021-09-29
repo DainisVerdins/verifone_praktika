@@ -1,14 +1,21 @@
+/*
+//First of all make the programme then improve it by newest standart
+*/
+
 #include<iostream>
 #include<fstream>
-#include<string>
+#include<string>//string
+#include<sstream>//stringstream
+#include<vector>
 #include <cctype>//isdigit
 #include <windows.h> //Sleep()
 
 constexpr auto EXIT_SEQUENCE = "q";
+constexpr auto CARD_NUM_LENGTH = 16;
 
 //return users input as string
 std::string get_user_input() {
-	std::string input = "1234567890123456";
+	std::string input = "6799999999999999";
 	//std::cin >> input;
 	return input;
 }
@@ -17,9 +24,9 @@ bool is_exit_seq(const std::string& s) {
 	return s == EXIT_SEQUENCE;
 }
 
-bool is_valid_card_num(const std::string& card_num, const int card_num_length) {
+bool is_valid_card_num(const std::string& card_num) {
 
-	if (card_num.length() != card_num_length)
+	if (card_num.length() != CARD_NUM_LENGTH)
 	{
 		return false;
 	}
@@ -43,6 +50,10 @@ std::string get_name_from_records(const std::string& file_name, const std::strin
 
 bool auth_passed(const std::string& record, const std::string& card_num, std::string& card_name);
 
+std::vector<std::string> tokenize(const std::string& record, const  char delimiter);
+
+bool in_range(const std::string& low, const std::string& high, const std::string& target);
+
 int main() {
 	//first input will be card number 
 	//second sum
@@ -57,18 +68,21 @@ int main() {
 	}
 	else
 	{
-		if (is_valid_card_num(user_input, card_number_length))
+		if (is_valid_card_num(user_input))
 		{
 			std::string name;
 
 			name = get_name_from_records(input_file_name, user_input);
 			if (name.empty())
 			{
+				//TODO make it in cxx style output
 				fprintf(stderr, "inputted card number was not found in recordings. Try different one\n");
 				Sleep(2000);// 2 seconds
 			}
-
-			std::cout << user_input << std::endl;
+			else {
+				
+			}
+			
 		}
 
 	}
@@ -107,12 +121,55 @@ std::string get_name_from_records(const std::string& file_name, const std::strin
 	return name;
 }
 
-//  checks if car_num is between of sequences of numbers in record
-//  if found returns true and by reference name of card
+//  splits record string into tokens+
+//  checks if card_num is between values from record in manner [start;end]
+//  writing card name into card name and return true;
 bool auth_passed(const std::string& record, const std::string& card_num, std::string& card_name)
 {
-	//something to split record
-	//something to check if card_num is between values [start;end]
-	//write card name into card name and return true;
-	return false;
+
+
+	const char record_delimeter = ';';
+	auto tokens = tokenize(record, record_delimeter);
+
+	
+	//tokens and what they contain
+	//tokens[0]- range start
+	//tokens[1] - range end
+	//tokens[2] - name
+	if (in_range(tokens[0], tokens[1], card_num)) {
+		card_name=tokens[2] ;
+		return true;
+	}
+	else {
+		return false;
+	}
+	
+}
+
+//  tokenizes inputed string by spliting records to tokens by delimeter
+//  if wrong delimeter will return full record back in vector
+std::vector<std::string> tokenize(const std::string& record, const  char delimiter)
+{
+	//TODO some max cap of tokens otherwise if data is corrupted overflow/
+
+	std::vector <std::string> tokens;
+
+	// stringstream class check1
+	std::stringstream check1(record);
+
+	std::string intermediate;
+
+	// Tokenizing w.r.t. space ' '
+	while (std::getline(check1, intermediate, delimiter))
+	{
+		tokens.push_back(intermediate);
+	}
+	return tokens;
+}
+
+bool in_range(const std::string& low, const std::string& high, const std::string& target)
+{
+	return target.compare(0, low.length(),low) >= 0
+		&& target.compare(0, high.length(), high) <= 0;
+
 }
