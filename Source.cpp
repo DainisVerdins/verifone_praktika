@@ -2,12 +2,13 @@
 //First of all make the programme then improve it by newest standart
 */
 
-#include<iostream>
-#include<fstream>
+#include<iostream>//cout
+#include<fstream>//ifstream
 #include<string>//string
 #include<sstream>//stringstream
 #include<vector>
 #include <cctype>//isdigit
+
 #include <windows.h> //Sleep()
 
 constexpr auto EXIT_SEQUENCE = "q";
@@ -45,7 +46,6 @@ bool is_valid_card_num(const std::string& card_num) {
 	return true;
 }
 
-//if card num found in recording then returns it name;
 std::string get_name_from_records(const std::string& file_name, const std::string& card_num);
 
 bool auth_passed(const std::string& record, const std::string& card_num, std::string& card_name);
@@ -53,6 +53,8 @@ bool auth_passed(const std::string& record, const std::string& card_num, std::st
 std::vector<std::string> tokenize(const std::string& record, const  char delimiter);
 
 bool in_range(const std::string& low, const std::string& high, const std::string& target);
+
+bool valid_sum(const std::string& sum);
 
 int main() {
 	//first input will be card number 
@@ -80,9 +82,15 @@ int main() {
 				Sleep(2000);// 2 seconds
 			}
 			else {
-				
+				//some prompt
+				/// TODO user promt
+				std::string user_sum = "1234.25";// get_user_input();
+				if (valid_sum(user_sum))
+				{
+					// TODO write into file
+				}
 			}
-			
+
 		}
 
 	}
@@ -131,19 +139,19 @@ bool auth_passed(const std::string& record, const std::string& card_num, std::st
 	const char record_delimeter = ';';
 	auto tokens = tokenize(record, record_delimeter);
 
-	
+
 	//tokens and what they contain
 	//tokens[0]- range start
 	//tokens[1] - range end
 	//tokens[2] - name
 	if (in_range(tokens[0], tokens[1], card_num)) {
-		card_name=tokens[2] ;
+		card_name = tokens[2];
 		return true;
 	}
 	else {
 		return false;
 	}
-	
+
 }
 
 //  tokenizes inputed string by spliting records to tokens by delimeter
@@ -169,7 +177,61 @@ std::vector<std::string> tokenize(const std::string& record, const  char delimit
 
 bool in_range(const std::string& low, const std::string& high, const std::string& target)
 {
-	return target.compare(0, low.length(),low) >= 0
+	return target.compare(0, low.length(), low) >= 0
 		&& target.compare(0, high.length(), high) <= 0;
 
+}
+
+// check if users inputed sum is correct
+// by specific criteria
+bool valid_sum(const std::string& sum)
+{
+	/*
+		sum format is "nnnn.mm"
+		where nnnn - 1 to 4 digits
+		mm - 2 digits big sum in cents
+		'.' is delimeter
+	*/
+
+	const int max_n_count = 4;
+	const int min_n_count = 1;
+	const int m_count = 2;
+	const char delimeter = '.';
+
+	const int max_sum_length = max_n_count + m_count + 1;//+1 because delimeter
+	const int min_sum_length = min_n_count + m_count + 1;
+
+	if (sum.length() > max_sum_length || sum.length() < min_sum_length) {
+		return false;
+	}
+
+	//check on delimeter pos
+	std::size_t delimeter_pos = sum.find(delimeter);
+	if (delimeter_pos == std::string::npos)//not found delimeter case
+	{
+		return false;
+	}
+	//multiple delimeters case
+	if (delimeter_pos != sum.rfind(delimeter))
+	{
+		return false;
+	}
+	//case where delimeter is in wrong position
+	//check if it is in -2 pos before last pos in str
+	if (sum.at(sum.length() - m_count - 1) != delimeter)
+	{
+		return false;
+	}
+
+	for (size_t i = 0; i < sum.length(); i++)
+	{
+		if (!std::isdigit(sum.at(i)) && sum.at(i) != delimeter)
+		{
+			return false;
+		}
+
+	}
+
+
+	return true;
 }
