@@ -68,46 +68,57 @@ int main() {
 	const std::string input_file_name{ "file.txt" };
 	const std::string output_file_name{ "trans.txt" };
 	const int card_number_length = 16;
-
-	std::cout << "Enter precisly 16 digit big card number or 'q' for exit\n";
-	user_input = get_user_input();
-	if (is_exit_seq(user_input))
-	{
-		return 0;
-	}
-
-	if (is_valid_card_num(user_input))
-	{
-		std::string name;
-
-		name = get_name_from_records(input_file_name, user_input);
-		if (name.empty())
+	
+	while (true) {
+		std::cout << "Enter precisly 16 digit big card number or 'q' for exit\n";
+		std::cout << "****************\n";
+		user_input = get_user_input();
+		if (is_exit_seq(user_input))
 		{
-			//TODO make it in cxx style output
-			fprintf(stderr, "inputted card number was not found in recordings. Try different one\n");
-			Sleep(2000);// 2 seconds
+			return 0;
 		}
-		else {
-			//some prompt
-			/// TODO user promt
-			std::string user_sum = get_user_input();
-			if (valid_sum(user_sum))
+
+		if (is_valid_card_num(user_input))
+		{
+			std::string name;
+
+			name = get_name_from_records(input_file_name, user_input);
+			if (name.empty())
 			{
-				// user input containts valid card number at this moment
-				if (write_record(output_file_name, user_input, name, user_sum)) {
-					std::cout << "added new record to db\n";
-				}
-				else {
-					std::cout << "did not added record to db\n";
+				//TODO make it in cxx style output
+				fprintf(stderr, "inputted card number was not found in recordings. Try different one\n");
+				Sleep(2000);// 2 seconds
+			}
+			else {
+				while (true) {
+					//some prompt
+					printf("Enter the sum in format 'nnnn.mm' where:\n");
+					printf("'nnnn' – 1 to 4 long sum in euros, \n");
+					printf("'mm' – precisely 2 digits sum in cents. ,\n");
+					printf("press 'q' and enter to exit.\n");
+					std::string user_sum = get_user_input();
+					if (valid_sum(user_sum))
+					{
+						// user input containts valid card number at this moment
+						if (write_record(output_file_name, user_input, name, user_sum)) {
+							std::cout << "added new record to db\n";
+						}
+						else {
+							std::cout << "did not added record to db\n";
+						}
+						break;
+					}
+					else {
+						std::cout << "inputed sum was bad one, try another\n";
+					}
 				}
 			}
+
 		}
-
+		else {
+			std::cout << "wrong card number length or not contains all digits\n";
+		}
 	}
-	else {
-		std::cout << "wrong card number length or not contains digits\n";
-	}
-
 
 
 	return 0;
