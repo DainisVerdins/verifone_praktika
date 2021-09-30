@@ -10,14 +10,15 @@
 #include <cctype>//isdigit
 
 #include <windows.h> //Sleep()
+#include  <io.h>//acess
 
 constexpr auto EXIT_SEQUENCE = "q";
 constexpr auto CARD_NUM_LENGTH = 16;
 
 //return users input as string
 std::string get_user_input() {
-	std::string input = "6799999999999999";
-	//std::cin >> input;
+	std::string input;
+	std::cin >> input;
 	return input;
 }
 
@@ -56,44 +57,58 @@ bool in_range(const std::string& low, const std::string& high, const std::string
 
 bool valid_sum(const std::string& sum);
 
+bool write_record(const std::string& file_name, const std::string& user_card_number,
+	const std::string& user_name, const std::string& user_sum);
+
+
 int main() {
 	//first input will be card number 
 	//second sum
 	std::string user_input{ "Hello C++ verifone" };
 	const std::string input_file_name{ "file.txt" };
+	const std::string output_file_name{ "trans.txt" };
 	const int card_number_length = 16;
 
+	std::cout << "Enter precisly 16 digit big card number or 'q' for exit\n";
 	user_input = get_user_input();
 	if (is_exit_seq(user_input))
 	{
-		std::cout << EXIT_SEQUENCE << std::endl;
+		return 0;
 	}
-	else
-	{
-		if (is_valid_card_num(user_input))
-		{
-			std::string name;
 
-			name = get_name_from_records(input_file_name, user_input);
-			if (name.empty())
+	if (is_valid_card_num(user_input))
+	{
+		std::string name;
+
+		name = get_name_from_records(input_file_name, user_input);
+		if (name.empty())
+		{
+			//TODO make it in cxx style output
+			fprintf(stderr, "inputted card number was not found in recordings. Try different one\n");
+			Sleep(2000);// 2 seconds
+		}
+		else {
+			//some prompt
+			/// TODO user promt
+			std::string user_sum = get_user_input();
+			if (valid_sum(user_sum))
 			{
-				//TODO make it in cxx style output
-				fprintf(stderr, "inputted card number was not found in recordings. Try different one\n");
-				Sleep(2000);// 2 seconds
-			}
-			else {
-				//some prompt
-				/// TODO user promt
-				std::string user_sum = "1234.25";// get_user_input();
-				if (valid_sum(user_sum))
-				{
-					// TODO write into file
+				// user input containts valid card number at this moment
+				if (write_record(output_file_name, user_input, name, user_sum)) {
+					std::cout << "added new record to db\n";
+				}
+				else {
+					std::cout << "did not added record to db\n";
 				}
 			}
-
 		}
 
 	}
+	else {
+		std::cout << "wrong card number length or not contains digits\n";
+	}
+
+
 
 	return 0;
 }
@@ -235,3 +250,88 @@ bool valid_sum(const std::string& sum)
 
 	return true;
 }
+
+// writing to a file record
+// on succes return true otherwise false
+// false in case file have write permission or cannot be created
+bool write_record(const std::string& file_name, const std::string& user_card_number,
+	const std::string& user_name, const std::string& user_sum)
+{
+	const char delimeter = ';';
+	// Check for file existance.
+	// Assume file is read-only.
+	/* modes
+	00	Existence only
+	02	Write-only
+	04	Read-only
+	06	Read and write
+	*/
+	//-1 means true 
+	if ((_access(file_name.c_str(), 0)) == -1) {
+
+		std::ofstream ofs;
+		ofs.open(file_name, std::ios::app);
+		if (!ofs)
+		{
+			std::cout << "cannot create file\n";
+			return false;
+		}
+		if (ofs.is_open())
+		{
+			ofs << user_card_number << delimeter
+				<< user_name << delimeter
+				<< user_sum << delimeter << '\n';
+
+			ofs.close();
+			return true;
+		}
+		else
+		{
+			std::cout << "Unable to open file'\n'";
+			return false;
+		}
+
+	}
+	else {
+		// Check for write permission.
+		// Assume file is read-only.
+		/* modes
+		00	Existence only
+		02	Write-only
+		04	Read-only
+		06	Read and write
+		*/
+		//-1 means true 
+		if ((_access(file_name.c_str(), 2)) == -1) {
+			std::cout << "File " << file_name << " does not have write permission.\n";
+			return false;
+		}
+
+
+		std::ofstream ofs{ file_name,std::ios::out | std::ios::app };
+		if (!ofs)
+		{
+			std::cout << "cannot create file\n";
+			return false;
+		}
+		if (ofs.is_open())
+		{
+			ofs << user_card_number << delimeter
+				<< user_name << delimeter
+				<< user_sum << delimeter << '\n';
+
+			ofs.close();
+			return true;
+		}
+		else
+		{
+			std::cout << "Unable to open file'\n'";
+			return false;
+		}
+
+	}
+
+
+}
+
+
