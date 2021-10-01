@@ -2,15 +2,16 @@
 //First of all make the programme then improve it by newest standart
 */
 
-#include<iostream>//cout
-#include<fstream>//ifstream
-#include<string>//string
-#include<sstream>//stringstream
-#include<vector>
-#include <cctype>//isdigit
-
 #include <windows.h> //Sleep()
-#include  <io.h>//acess
+#include <io.h>//acess
+
+#include <iostream>//cout
+#include <fstream>//ifstream
+#include <string>//string
+#include <sstream>//stringstream
+#include <vector>
+#include <cctype>//isdigit
+#include <string_view>
 
 constexpr auto EXIT_SEQUENCE = "q";
 constexpr auto CARD_NUM_LENGTH = 16;
@@ -22,18 +23,17 @@ std::string get_user_input() {
 	return input;
 }
 
-bool is_exit_seq(const std::string& s) {
+bool is_exit_seq(std::string_view s) {
 	return s == EXIT_SEQUENCE;
 }
 
-bool is_valid_card_num(const std::string& card_num) {
+bool is_valid_card_num(std::string_view card_num) {
 
 	if (card_num.length() != CARD_NUM_LENGTH)
 	{
 		return false;
 	}
 
-	//TODO need to make tests on for_each() with lambda
 	for (auto& ch : card_num) {
 
 		if (!std::isdigit(ch))
@@ -41,9 +41,6 @@ bool is_valid_card_num(const std::string& card_num) {
 			return false;
 		}
 	}
-
-
-
 	return true;
 }
 
@@ -68,10 +65,10 @@ int main() {
 	const std::string input_file_name{ "file.txt" };
 	const std::string output_file_name{ "trans.txt" };
 	const int card_number_length = 16;
-	
+
 	while (true) {
 		std::cout << "Enter precisly 16 digit big card number or 'q' for exit\n";
-		std::cout << "****************\n";
+		std::cout << "****************<-how long card number must be\n";
 		user_input = get_user_input();
 		if (is_exit_seq(user_input))
 		{
@@ -85,17 +82,16 @@ int main() {
 			name = get_name_from_records(input_file_name, user_input);
 			if (name.empty())
 			{
-				//TODO make it in cxx style output
-				fprintf(stderr, "inputted card number was not found in recordings. Try different one\n");
+				std::cerr << "inputted card number was not found in recordings. Try different one\n";
 				Sleep(2000);// 2 seconds
 			}
 			else {
 				while (true) {
 					//some prompt
-					printf("Enter the sum in format 'nnnn.mm' where:\n");
-					printf("'nnnn' – 1 to 4 long sum in euros, \n");
-					printf("'mm' – precisely 2 digits sum in cents. ,\n");
-					printf("press 'q' and enter to exit.\n");
+					std::cout << "Enter the sum in format 'nnnn.mm' where:\n";
+					std::cout << "'nnnn' – 1 to 4 long sum in euros, \n";
+					std::cout << "'mm' – precisely 2 digits sum in cents. ,\n";
+					std::cout << "'.' – delimeter of sum\n";
 					std::string user_sum = get_user_input();
 					if (valid_sum(user_sum))
 					{
@@ -133,8 +129,7 @@ std::string get_name_from_records(const std::string& file_name, const std::strin
 	std::ifstream records{ file_name };
 	if (!records)
 	{
-		//TODO make it c++ output not c-style one
-		fprintf(stderr, "cannot find file \"%s\"\n", file_name.c_str());
+		std::cerr << "cannot find file \"" << file_name << "\"\n";
 		return name;
 	}
 	else {
@@ -184,19 +179,24 @@ bool auth_passed(const std::string& record, const std::string& card_num, std::st
 //  if wrong delimeter will return full record back in vector
 std::vector<std::string> tokenize(const std::string& record, const  char delimiter)
 {
-	//TODO some max cap of tokens otherwise if data is corrupted overflow/
-
+	const int max_token_count = 17;
 	std::vector <std::string> tokens;
 
 	// stringstream class check1
 	std::stringstream check1(record);
-
 	std::string intermediate;
 
+	int i = 0;
 	// Tokenizing w.r.t. space ' '
 	while (std::getline(check1, intermediate, delimiter))
 	{
+		if (max_token_count == i)
+		{
+			std::cerr << "max count of tokens reached,stop tokenizing\n";
+			return tokens;
+		}
 		tokens.push_back(intermediate);
+		++i;
 	}
 	return tokens;
 }
