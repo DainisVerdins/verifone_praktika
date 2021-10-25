@@ -1,348 +1,125 @@
 /*
 //First of all make the programme then improve it by newest standart
 */
+#include<iostream>
+#include<vector>
+#include<string>
+using namespace std;
+// 1 stands for ladder
+// 2 stands for user
+// 0 for empty space
+//first occurence in floor if not found -1
+int find_space(const vector<int>& floor, int parking_space);
 
-#include <windows.h> //Sleep()
-#include <io.h>//acess
+std::string move_direction(int from, int to);
 
-#include <iostream>//cout
-#include <fstream>//ifstream
-#include <string>//string
-#include <sstream>//stringstream
-#include <vector>
-#include <cctype>//isdigit
-#include <string_view>
+int ladders_depth(const vector<vector<int>>& carpark, int start_level, int pos);
 
-constexpr auto EXIT_SEQUENCE = "q";
-constexpr auto CARD_NUM_LENGTH = 16;
+vector<string> escape(const vector<vector<int>>& carpark)
+{
+	vector<string> output;
 
-//return users input as string
-std::string get_user_input() {
-	std::string input;
-	std::cin >> input;
-	return input;
-}
+	// 1.find start pos of user in floor +
+	// 2.find ladder in floor +
+	// 3.calc distance between user and ladder +
+	// 4.get result of witch dir user must move +
+	// 5.return direction and distance as string +
+	// 6.set users pos as one level above first floor
+	// 7.find if any stairs if yes repeat from 3. statements
+	// if not it means what we are in last floor and need to find exit
+	// exit is far rigth element of last floor
+	// 8, calc distance if have to exit
+	// 9.get string of movement
+	// 10.return vector of movements
+	// .
 
-bool is_exit_seq(std::string_view s) {
-	return s == EXIT_SEQUENCE;
-}
+	int prev_ladder_pos = find_space(carpark[0], 2);//find player
+	int ladder_pos = find_space(carpark[0], 1);//find first ladder
+	cout << move_direction(prev_ladder_pos, ladder_pos);//get distance 
+	int depth = ladders_depth(carpark, 0, ladder_pos);
+	cout << "D" + std::to_string(depth);//goo deep 
 
-bool is_valid_card_num(std::string_view card_num) {
-
-	if (card_num.length() != CARD_NUM_LENGTH)
+	for (size_t i = depth; i < carpark.size() - 1; i++)//from 1 because 0 floor was seen 
+												 //-1 because diferent logick on check last floor 
 	{
-		return false;
-	}
+		prev_ladder_pos = ladder_pos;
+		ladder_pos = find_space(carpark[i], 1);
+		cout << move_direction(prev_ladder_pos, ladder_pos);
 
-	for (auto& ch : card_num) {
+		depth = ladders_depth(carpark, i, ladder_pos);
+		cout << " D" + std::to_string(depth);//goo deep 
 
-		if (!std::isdigit(ch))
+		if (depth > 1)
 		{
-			return false;
+			i += depth;
 		}
 	}
-	return true;
+	//last floor
+	cout << move_direction(ladder_pos, 4);//far rigth most zeros position
+
+	return output; // Code here
 }
-
-std::string get_name_from_records(const std::string& file_name, const std::string& card_num);
-
-bool auth_passed(const std::string& record, const std::string& card_num, std::string& card_name);
-
-std::vector<std::string> tokenize(const std::string& record, const  char delimiter);
-
-bool in_range(const std::string& low, const std::string& high, const std::string& target);
-
-bool valid_sum(const std::string& sum);
-
-bool write_record(const std::string& file_name, const std::string& user_card_number,
-	const std::string& user_name, const std::string& user_sum);
-
 
 int main() {
-	//first input will be card number 
-	//second sum
-	std::string user_input{ "Hello C++ verifone" };
-	const std::string input_file_name{ "file.txt" };
-	const std::string output_file_name{ "trans.txt" };
-	const int card_number_length = 16;
 
-	while (true) {
-		std::cout << "Enter precisly 16 digit big card number or 'q' for exit\n";
-		std::cout << "****************<-how long card number must be\n";
-		user_input = get_user_input();
-		if (is_exit_seq(user_input))
-		{
-			return 0;
-		}
+	vector<vector<int>>floors{ {0, 2, 0, 0, 1},
+							   {0, 0, 0, 0, 1},
+							   {0, 0, 0, 0, 1},
+							 {0, 0, 0, 0, 0} };
+	auto output = escape(floors);
 
-		if (is_valid_card_num(user_input))
-		{
-			std::string name;
-
-			name = get_name_from_records(input_file_name, user_input);
-			if (name.empty())
-			{
-				std::cerr << "inputted card number was not found in recordings. Try different one\n";
-				Sleep(2000);// 2 seconds
-			}
-			else {
-				while (true) {
-					//some prompt
-					std::cout << "Enter the sum in format 'nnnn.mm' where:\n";
-					std::cout << "'nnnn' – 1 to 4 long sum in euros, \n";
-					std::cout << "'mm' – precisely 2 digits sum in cents. ,\n";
-					std::cout << "'.' – delimeter of sum\n";
-					std::string user_sum = get_user_input();
-					if (valid_sum(user_sum))
-					{
-						// user input containts valid card number at this moment
-						if (write_record(output_file_name, user_input, name, user_sum)) {
-							std::cout << "added new record to db\n";
-						}
-						else {
-							std::cout << "did not added record to db\n";
-						}
-						break;
-					}
-					else {
-						std::cout << "inputed sum was bad one, try another\n";
-					}
-				}
-			}
-
-		}
-		else {
-			std::cout << "wrong card number length or not contains all digits\n";
-		}
+	for (size_t i = 0; i < output.size(); i++)
+	{
+		std::cout << output[i] << '\n';
 	}
-
-
+	std::cout << output.size() << '\n';
 	return 0;
 }
 
-//  reads data from file if contains card_num 
-//  between [start:end] sequences in file 
-//  returns name of the card, otherwise empty string
-std::string get_name_from_records(const std::string& file_name, const std::string& card_num)
+int find_space(const vector<int>& floor, int parking_space)
 {
-	std::string name;
-	std::ifstream records{ file_name };
-	if (!records)
+	for (size_t i = 0; i < floor.size(); i++)
 	{
-		std::cerr << "cannot find file \"" << file_name << "\"\n";
-		return name;
+		if (parking_space == floor[i])
+		{
+			return i;
+		}
+	}
+	return -1;//not found
+}
+
+std::string move_direction(int from, int to)
+{
+	const unsigned int distance = std::abs(from - to);
+	//move to left
+	if (from > to)
+	{
+		return "L" + std::to_string(distance);
+	}
+	else if (from < to)//move to rigth
+	{
+		return "R" + std::to_string(distance);
 	}
 	else {
-		if (records.is_open())
-		{
-			std::string record_line;
-			while (std::getline(records, record_line))
-			{
-				if (auth_passed(record_line, card_num, name))
-				{
-					break;
-				}
-			}
-			records.close();
-		}
-
+		return "";
 	}
-	return name;
 }
 
-//  splits record string into tokens+
-//  checks if card_num is between values from record in manner [start;end]
-//  writing card name into card name and return true;
-bool auth_passed(const std::string& record, const std::string& card_num, std::string& card_name)
+int ladders_depth(const vector<vector<int>>& carpark, int start_level, int pos)
 {
-
-
-	const char record_delimeter = ';';
-	auto tokens = tokenize(record, record_delimeter);
-
-
-	//tokens and what they contain
-	//tokens[0]- range start
-	//tokens[1] - range end
-	//tokens[2] - name
-	if (in_range(tokens[0], tokens[1], card_num)) {
-		card_name = tokens[2];
-		return true;
+	int depth = 0;
+	for (size_t i = start_level; i < carpark.size(); i++)
+	{
+		if (carpark[i][pos] == 1) {
+			++depth;
+		}
+		else {
+			return depth;
+		}
 	}
-	else {
-		return false;
-	}
-
+	return depth;
 }
 
-//  tokenizes inputed string by spliting records to tokens by delimeter
-//  if wrong delimeter will return full record back in vector
-std::vector<std::string> tokenize(const std::string& record, const  char delimiter)
-{
-	const int max_token_count = 17;
-	std::vector <std::string> tokens;
 
-	// stringstream class check1
-	std::stringstream check1(record);
-	std::string intermediate;
-
-	int i = 0;
-	// Tokenizing w.r.t. space ' '
-	while (std::getline(check1, intermediate, delimiter))
-	{
-		if (max_token_count == i)
-		{
-			std::cerr << "max count of tokens reached,stop tokenizing\n";
-			return tokens;
-		}
-		tokens.push_back(intermediate);
-		++i;
-	}
-	return tokens;
-}
-
-bool in_range(const std::string& low, const std::string& high, const std::string& target)
-{
-	return target.compare(0, low.length(), low) >= 0
-		&& target.compare(0, high.length(), high) <= 0;
-
-}
-
-// check if users inputed sum is correct
-// by specific criteria
-bool valid_sum(const std::string& sum)
-{
-	/*
-		sum format is "nnnn.mm"
-		where nnnn - 1 to 4 digits
-		mm - 2 digits big sum in cents
-		'.' is delimeter
-	*/
-
-	const int max_n_count = 4;
-	const int min_n_count = 1;
-	const int m_count = 2;
-	const char delimeter = '.';
-
-	const int max_sum_length = max_n_count + m_count + 1;//+1 because delimeter
-	const int min_sum_length = min_n_count + m_count + 1;
-
-	if (sum.length() > max_sum_length || sum.length() < min_sum_length) {
-		return false;
-	}
-
-	//check on delimeter pos
-	std::size_t delimeter_pos = sum.find(delimeter);
-	if (delimeter_pos == std::string::npos)//not found delimeter case
-	{
-		return false;
-	}
-	//multiple delimeters case
-	if (delimeter_pos != sum.rfind(delimeter))
-	{
-		return false;
-	}
-	//case where delimeter is in wrong position
-	//check if it is in -2 pos before last pos in str
-	if (sum.at(sum.length() - m_count - 1) != delimeter)
-	{
-		return false;
-	}
-
-	for (size_t i = 0; i < sum.length(); i++)
-	{
-		if (!std::isdigit(sum.at(i)) && sum.at(i) != delimeter)
-		{
-			return false;
-		}
-
-	}
-
-
-	return true;
-}
-
-// writing to a file record
-// on succes return true otherwise false
-// false in case file have write permission or cannot be created
-bool write_record(const std::string& file_name, const std::string& user_card_number,
-	const std::string& user_name, const std::string& user_sum)
-{
-	const char delimeter = ';';
-	// Check for file existance.
-	// Assume file is read-only.
-	/* modes
-	00	Existence only
-	02	Write-only
-	04	Read-only
-	06	Read and write
-	*/
-	//-1 means true 
-	if ((_access(file_name.c_str(), 0)) == -1) {
-
-		std::ofstream ofs;
-		ofs.open(file_name, std::ios::app);
-		if (!ofs)
-		{
-			std::cout << "cannot create file\n";
-			return false;
-		}
-		if (ofs.is_open())
-		{
-			ofs << user_card_number << delimeter
-				<< user_name << delimeter
-				<< user_sum << delimeter << '\n';
-
-			ofs.close();
-			return true;
-		}
-		else
-		{
-			std::cout << "Unable to open file'\n'";
-			return false;
-		}
-
-	}
-	else {
-		// Check for write permission.
-		// Assume file is read-only.
-		/* modes
-		00	Existence only
-		02	Write-only
-		04	Read-only
-		06	Read and write
-		*/
-		//-1 means true 
-		if ((_access(file_name.c_str(), 2)) == -1) {
-			std::cout << "File " << file_name << " does not have write permission.\n";
-			return false;
-		}
-
-
-		std::ofstream ofs{ file_name,std::ios::out | std::ios::app };
-		if (!ofs)
-		{
-			std::cout << "cannot create file\n";
-			return false;
-		}
-		if (ofs.is_open())
-		{
-			ofs << user_card_number << delimeter
-				<< user_name << delimeter
-				<< user_sum << delimeter << '\n';
-
-			ofs.close();
-			return true;
-		}
-		else
-		{
-			std::cout << "Unable to open file'\n'";
-			return false;
-		}
-
-	}
-
-
-}
 
 
